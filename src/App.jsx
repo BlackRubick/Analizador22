@@ -14,7 +14,6 @@ import AnalysisFormView from "./components/organisms/AnalysisFormView";
 import Settings from "./components/Settings";
 
 
-// Utilidad para cargar pacientes de localStorage
 function loadPatients() {
   try {
     const data = localStorage.getItem("patients");
@@ -23,13 +22,11 @@ function loadPatients() {
   return [];
 }
 
-// Utilidad para guardar pacientes en localStorage
 function savePatients(patients) {
   localStorage.setItem("patients", JSON.stringify(patients));
 }
 
 function App() {
-  // Cargar pacientes de localStorage al iniciar
   const [patients, setPatients] = useState(loadPatients());
   const [view, setView] = useState("patients");
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -37,12 +34,10 @@ function App() {
   const [editingAnalysis, setEditingAnalysis] = useState(null);
   const [user, setUser] = useState({ nombre: "Usuario", email: "", preferencias: "" });
 
-  // Guardar pacientes en localStorage cada vez que cambian
   useEffect(() => {
     savePatients(patients);
   }, [patients]);
 
-  // Análisis
   const handleAddAnalysis = () => {
     setEditingAnalysis(null);
     setView("analysisForm");
@@ -89,21 +84,18 @@ function App() {
         }));
         setView("analysis");
       };
-    // Selección de paciente para ver análisis
     const handleSelectPatient = (p) => {
       setSelectedPatient(p);
       setView("analysis");
     };
 
 
-  // Navegación principal
   const goToPatients = () => { setView("patients"); setSelectedPatient(null); setEditingPatient(null); };
   const goToSettings = () => setView("settings");
   const goToAnalysis = () => { if (selectedPatient) setView("analysis"); };
   const goToPatientForm = () => { setEditingPatient(null); setView("patientForm"); };
   const goToAnalysisForm = () => { setEditingAnalysis(null); setView("analysisForm"); };
 
-  // Pacientes
   const handleAddPatient = () => { setEditingPatient(null); setView("patientForm"); };
   const handleEditPatient = (p) => { setEditingPatient(p); setView("patientForm"); };
   const handleDeletePatient = (p) => {
@@ -190,7 +182,6 @@ function App() {
             onCancel={() => setView("analysis")}
           />
         )}
-        {/* Configuración eliminada del menú y de la vista principal */}
       </main>
       <Footer />
     </Layout>

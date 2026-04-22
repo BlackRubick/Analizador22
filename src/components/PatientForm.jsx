@@ -54,7 +54,6 @@ export default function PatientForm({ initial, onSave, onCancel }) {
           </select>
         </div>
 
-        {/* Consentimiento informado y aviso de privacidad al final */}
         <div className="border-t border-gray-200 pt-6 mt-6">
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input

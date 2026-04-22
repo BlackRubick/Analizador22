@@ -14,7 +14,6 @@ export default function Modal({ open, onClose, title, children }) {
         </button>
         {title && <h2 className="text-xl font-bold mb-4 text-main px-6 pt-6">{title}</h2>}
         <div className="prose max-w-none overflow-y-auto max-h-[70vh] px-6">{children}</div>
-        {/* Área sticky para acciones si se usan botones en el modal */}
         <div className="sticky bottom-0 left-0 w-full bg-white px-6 pb-4 pt-2 z-10 flex justify-end gap-2"></div>
       </div>
     </div>

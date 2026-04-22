@@ -1,11 +1,8 @@
 import React, { useState, useRef } from "react";
-// import { analizarTipoDePieOpenCV } from "./footAnalysisOpenCV";
 import Swal from "sweetalert2";
 
 export default function AnalysisForm({ initial, onSave, onCancel }) {
-  // Paso: 0 = podometría, 1 = tibiofemoral frontal, 2 = tibiofemoral sagital, 3 = miofascial
   const [step, setStep] = useState(0);
-  // Fecha de hoy en formato yyyy-mm-dd
   const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState({
     tipoTest: "Podometría digital",
@@ -26,17 +23,13 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
   const canvasRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [pieLoading, setPieLoading] = useState(false);
-  const [adaptiveC, setAdaptiveC] = useState(10); // Parámetro C del umbral adaptativo
-  const [invertThreshold, setInvertThreshold] = useState(true); // Nuevo: invertir umbral
-  const [binarizationType, setBinarizationType] = useState('adaptive'); // 'adaptive' o 'fixed'
-  const [fixedThreshold, setFixedThreshold] = useState(120); // Valor para umbral fijo
-  // Estado para debug binarizado
+  const [adaptiveC, setAdaptiveC] = useState(10);
+  const [invertThreshold, setInvertThreshold] = useState(true);
+  const [binarizationType, setBinarizationType] = useState('adaptive');
+  const [fixedThreshold, setFixedThreshold] = useState(120);
   const [pieBinImg, setPieBinImg] = useState(null);
-  // Estado para debug visual de podometría y rodilla
   const [pieDebugImg, setPieDebugImg] = useState(null);
-  // Estado para resultado de análisis de pie y rodilla
   const [pieResult, setPieResult] = useState(null);
-  // Estado persistente para todos los resultados e imágenes
   const [analisisState, setAnalisisState] = useState({
     podometria: { result: null, debugImg: null, binImg: null, huella: null },
     frontal: { result: null, debugImg: null },
@@ -52,7 +45,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
       if (files[0]) {
         setPieLoading(true);
         setPieResult(null);
-        // Ya no se borran las imágenes de debug ni la huella plantar al cambiar de paso
         const formData = new FormData();
         formData.append('file', files[0]);
         let endpoint = '';
@@ -66,7 +58,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
             body: formData,
           });
           const data = await res.json();
-          // --- Actualización robusta de analisisState ---
           if (step === 0 && res.ok && data.metrics) {
             setAnalisisState(prev => {
               const newState = { ...prev };
@@ -81,7 +72,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
               if (data.images && data.images.annotated) newState.podometria.debugImg = data.images.annotated;
               return newState;
             });
-            // Convertir huella plantar a base64 y guardar
             if (files[0] && typeof files[0] !== 'string') {
               const reader = new FileReader();
               reader.onload = (ev) => {
@@ -141,7 +131,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
             });
           }
         } catch (e) {
-          // No cambia el estado si hay error
         }
         setPieLoading(false);
       }
@@ -180,8 +169,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
         });
         return;
       }
-      // Guardar el análisis y, tras generar el PDF, guardar la URL temporal en el análisis
-      // Generar un id único para el análisis si no existe
       const analysisId = form.id || Date.now();
       onSave({ ...form, id: analysisId, pdfUrl: null });
       Swal.fire({
@@ -192,9 +179,7 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
         showConfirmButton: false
       });
 
-      // --- GENERAR PDF USANDO analisisState ---
       const analisis = [];
-      // Podometría
       if (analisisState.podometria.result) {
         const imagenes = [];
         if (analisisState.podometria.huella && typeof analisisState.podometria.huella === 'string') {
@@ -218,7 +203,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
         });
       }
 
-      // Rodilla frontal
       if (analisisState.frontal.result) {
         const imagenes = [];
         if (analisisState.frontal.debugImg && typeof analisisState.frontal.debugImg === 'string') {
@@ -232,7 +216,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
         });
       }
 
-      // Rodilla sagital
       if (analisisState.sagital.result) {
         const imagenes = [];
         if (analisisState.sagital.debugImg && typeof analisisState.sagital.debugImg === 'string') {
@@ -246,7 +229,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
         });
       }
 
-      // Cadena miofascial
       if (analisisState.miofascial.result) {
         analisis.push({
           titulo: 'Cadena miofascial',
@@ -273,7 +255,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
         .then(res => res.blob())
         .then(blob => {
           const url = window.URL.createObjectURL(blob);
-          // Guardar la URL del PDF en el análisis correcto (por id)
           let pacientes = JSON.parse(localStorage.getItem('patients') || '[]');
           pacientes = pacientes.map(pt => {
             if (pt.analyses && pt.analyses.length > 0) {
@@ -285,7 +266,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
             return pt;
           });
           localStorage.setItem('patients', JSON.stringify(pacientes));
-          // Descargar el PDF
           const a = document.createElement('a');
           a.href = url;
           a.download = 'ReportePaciente.pdf';
@@ -334,7 +314,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
     });
   };
 
-  // Renderizado condicional por paso
   let stepTitle = "";
   let stepSubtitle = "";
   let uploadKey = "";
@@ -546,7 +525,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
           padding-top: 20px;
           border-top: 1px solid #f3f4f6;
         }
-        /* Modal */
         .af-modal-overlay {
           position: fixed;
           inset: 0;
@@ -605,7 +583,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
 
 
       <div className="af-card">
-        {/* Header */}
         <div className="af-header">
           <div className="af-header-icon">
             <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
@@ -619,7 +596,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
           </div>
         </div>
 
-        {/* Mode toggle */}
         <p className="af-section-label">Método de captura</p>
         <div className="af-tabs">
           <button
@@ -645,7 +621,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
           </button>
         </div>
 
-        {/* Sensibilidad podometría, binarización y debug binario */}
         {step === 0 && (
           <div style={{ marginBottom: 18 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
@@ -709,7 +684,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
                 </span>
               </div>
             </div>
-            {/* Debug visual: imagen binarizada */}
             {pieBinImg && (
               <div style={{ marginTop: 10 }}>
                 <div style={{ fontWeight: 500, color: '#333', marginBottom: 4 }}>Vista binarizada:</div>
@@ -719,7 +693,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
           </div>
         )}
 
-        {/* Upload panel */}
         {!form.tomarFoto && (
           <div className="af-upload-zone">
             <input
@@ -737,7 +710,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
               {form[uploadKey] ? "Imagen seleccionada ✓" : "Haz clic o arrastra aquí"}
             </p>
             <p className="af-upload-hint">PNG, JPG, WEBP — máx. 10 MB</p>
-            {/* Resultado de análisis de pie, rodilla y cadena miofascial */}
             <div style={{ marginTop: 12 }}>
               {pieLoading && (step === 0 || step === 1 || step === 2) && <span style={{ color: '#3b6cf8', fontWeight: 600 }}>
                 {step === 0 ? 'Analizando tipo de pie...' : step === 1 ? 'Analizando ángulo de rodilla (frontal)...' : 'Analizando ángulo de rodilla (sagital)...'}
@@ -771,7 +743,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
                         ⚠️ {r.advertencia}
                       </div>
                     ) : (
-                      // Para rodilla frontal y sagital
                       <div key={i} style={{ marginBottom: 6, color: '#3b6cf8' }}>
                         <b>{r.plano === 'frontal' ? 'Ángulo tibiofemoral (frontal):' : r.plano === 'sagittal' ? 'Ángulo tibiofemoral (sagital):' : ''}</b> {r.tipo} {r.angulo ? `| Ángulo: ${r.angulo}` : ''}
                       </div>
@@ -779,7 +750,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
                   ))}
                 </div>
               )}
-              {/* Debug visual: mostrar imagen y medidas para todos los pasos */}
               {pieDebugImg && (
                 <div style={{ marginTop: 16 }}>
                   <div style={{ fontWeight: 500, color: '#333', marginBottom: 4 }}>Debug visual:</div>
@@ -790,7 +760,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
           </div>
         )}
 
-        {/* Camera panel */}
         {form.tomarFoto && (
           <div className="af-camera-section">
             <select
@@ -838,7 +807,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
           </div>
         )}
 
-        {/* Actions */}
         <div className="af-btn-row">
           <button
             type="button"
@@ -893,7 +861,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
       </div>
     </div>
 
-    {/* Camera modal */}
     {showCamera && (
         <div className="af-modal-overlay">
           <div className="af-modal-box">
