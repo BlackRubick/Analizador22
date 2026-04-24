@@ -230,9 +230,10 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
       }
 
       if (analisisState.miofascial.result) {
+        const tipoCadena = analisisState.miofascial.result[0]?.tipo || analisisState.miofascial.result[0]?.chain || '';
         analisis.push({
           titulo: 'Cadena miofascial',
-          tipo: analisisState.miofascial.result[0]?.tipo || '',
+          tipo: tipoCadena,
           explicacion: analisisState.miofascial.result[0]?.explicacion || '',
           metricas: analisisState.miofascial.result[0]?.rasgos || [],
           imagenes: [analisisState.miofascial.debugImg && typeof analisisState.miofascial.debugImg === 'string' ? { titulo: 'Debug miofascial', base64: analisisState.miofascial.debugImg.replace(/^data:image\/\w+;base64,/, '') } : null].filter(Boolean)
