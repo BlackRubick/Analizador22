@@ -126,6 +126,7 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
                 explicacion: data.explanation,
                 rasgos: data.rasgos,
               }];
+              if (data.imagen_original) newState.miofascial.imagen_original = data.imagen_original;
               if (data.images && data.images.annotated) newState.miofascial.debugImg = data.images.annotated;
               return newState;
             });
@@ -248,6 +249,10 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
         fecha: form.fecha || new Date().toLocaleDateString(),
         analisis
       };
+      // Adjuntar imagen_original si existe en miofascial
+      if (analisisState.miofascial && analisisState.miofascial.imagen_original) {
+        reportData.imagen_original = analisisState.miofascial.imagen_original;
+      }
       fetch('http://127.0.0.1:8000/generate-report/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
