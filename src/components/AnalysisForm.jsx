@@ -221,6 +221,42 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!initial) {
+      if (step === 0 && !analisisState.podometria.result) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Falta procesar la imagen',
+          text: 'No puedes continuar hasta que la podometría se suba y procese correctamente.',
+        });
+        return;
+      }
+      if (step === 1 && !analisisState.frontal.result) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Falta procesar la imagen',
+          text: 'No puedes continuar hasta que la imagen frontal se suba y procese correctamente.',
+        });
+        return;
+      }
+      if (step === 2 && !analisisState.sagital.result) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Falta procesar la imagen',
+          text: 'No puedes continuar hasta que la imagen sagital se suba y procese correctamente.',
+        });
+        return;
+      }
+      if (step === 3 && !analisisState.miofascial.result) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Falta procesar la imagen',
+          text: 'No puedes continuar hasta que la cadena miofascial se suba y procese correctamente.',
+        });
+        return;
+      }
+    }
+
     if (step === 0) {
       setStep(1);
       setForm(f => ({ ...f, tipoTest: "Ángulo de tibiofemoral" }));

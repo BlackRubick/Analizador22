@@ -64,17 +64,17 @@ export default function AnalysisList({ analyses, onAdd, onEdit, onDelete }) {
               <div className="flex flex-wrap gap-4 text-secondary text-sm mb-4">
                 <span>Fecha: <b className="text-main font-semibold">{a.fecha}</b></span>
               </div>
-              <div className="flex gap-2 justify-end">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full items-stretch">
                 <button
-                  className="btn-secondary text-sm"
+                  className="btn-secondary text-sm w-full min-w-0 justify-center text-center whitespace-normal break-words leading-tight px-3 py-3"
                   onClick={() => onEdit(a)}
                 >Editar</button>
                 <button
-                  className="btn-secondary text-sm border-error text-error hover:bg-error hover:text-white hover:border-error"
+                  className="btn-secondary text-sm w-full min-w-0 justify-center text-center whitespace-normal break-words leading-tight px-3 py-3 border-error text-error hover:bg-error hover:text-white hover:border-error"
                   onClick={() => onDelete(a)}
                 >Eliminar</button>
                 <button
-                  className="btn-secondary text-sm border-info text-info hover:bg-info hover:text-white hover:border-info"
+                  className="btn-secondary text-sm w-full min-w-0 justify-center text-center whitespace-normal break-words leading-tight px-3 py-3 border-info text-info hover:bg-info hover:text-white hover:border-info"
                   onClick={() => handleOpenModal(a)}
                 >Observaciones</button>
               </div>

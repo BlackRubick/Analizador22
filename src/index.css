@@ -209,3 +209,46 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+.swal2-popup .swal2-confirm,
+.swal2-popup .swal2-cancel,
+.swal2-popup .swal2-styled.swal2-confirm,
+.swal2-popup .swal2-styled.swal2-cancel {
+  min-width: 108px;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  padding: 0.72rem 1.15rem !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12) !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
+
+.swal2-popup .swal2-confirm,
+.swal2-popup .swal2-styled.swal2-confirm {
+  background: var(--color-primary) !important;
+  color: #fff !important;
+  border: 0 !important;
+}
+
+.swal2-popup .swal2-confirm:hover,
+.swal2-popup .swal2-confirm:focus,
+.swal2-popup .swal2-styled.swal2-confirm:hover,
+.swal2-popup .swal2-styled.swal2-confirm:focus {
+  background: #357ca5 !important;
+  color: #fff !important;
+}
+
+.swal2-popup .swal2-cancel,
+.swal2-popup .swal2-styled.swal2-cancel {
+  background: #eef2f7 !important;
+  color: var(--color-text-main) !important;
+  border: 1px solid #d7dee8 !important;
+}
+
+.swal2-popup .swal2-cancel:hover,
+.swal2-popup .swal2-cancel:focus,
+.swal2-popup .swal2-styled.swal2-cancel:hover,
+.swal2-popup .swal2-styled.swal2-cancel:focus {
+  background: #e2e8f0 !important;
+  color: var(--color-text-main) !important;
+}
