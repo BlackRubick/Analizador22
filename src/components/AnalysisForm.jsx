@@ -37,105 +37,186 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
     miofascial: { result: null, debugImg: null }
   });
 
+  const uploadConfig = {
+    0: {
+      label: "Podometría digital",
+      endpoint: "http://127.0.0.1:8000/analyze-foot/",
+    },
+    1: {
+      label: "Ángulo de tibiofemoral (frontal)",
+      endpoint: "http://127.0.0.1:8000/analyze-knee/frontal/",
+    },
+    2: {
+      label: "Ángulo de tibiofemoral (sagital)",
+      endpoint: "http://127.0.0.1:8000/analyze-knee/sagittal/",
+    },
+    3: {
+      label: "Cadena miofascial causal",
+      endpoint: "http://127.0.0.1:8000/analyze-muscle-chain/",
+    },
+  };
+
+  const getUploadErrorMessage = (data, fallbackMessage) => {
+    if (!data) return fallbackMessage;
+    if (typeof data === "string" && data.trim()) return data;
+    return data.detail || data.message || data.error || fallbackMessage;
+  };
+
   const handleChange = async (e) => {
     const { name, value, type, checked, files } = e.target;
-    if (type === "checkbox") setForm({ ...form, [name]: checked });
-    else if (type === "file") {
+
+    if (type === "checkbox") {
+      setForm({ ...form, [name]: checked });
+      return;
+    }
+
+    if (type === "file") {
       setForm({ ...form, [uploadKey]: files[0] });
-      if (files[0]) {
-        setPieLoading(true);
-        setPieResult(null);
-        const formData = new FormData();
-        formData.append('file', files[0]);
-        let endpoint = '';
-        if (step === 0) endpoint = 'http://127.0.0.1:8000/analyze-foot/';
-        if (step === 1) endpoint = 'http://127.0.0.1:8000/analyze-knee/frontal/';
-        if (step === 2) endpoint = 'http://127.0.0.1:8000/analyze-knee/sagittal/';
-        if (step === 3) endpoint = 'http://127.0.0.1:8000/analyze-muscle-chain/';
+
+      if (!files[0]) return;
+
+      setPieLoading(true);
+      setPieResult(null);
+
+      const formData = new FormData();
+      formData.append("file", files[0]);
+
+      const uploadMeta = uploadConfig[step];
+      const endpoint = uploadMeta?.endpoint || "";
+      const uploadLabel = uploadMeta?.label || "la imagen";
+
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
+        });
+
+        let data = null;
         try {
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            body: formData,
+          data = await res.json();
+        } catch {
+          data = null;
+        }
+
+        if (!res.ok) {
+          Swal.fire({
+            icon: "error",
+            title: "No se pudo subir la imagen",
+            text: getUploadErrorMessage(
+              data,
+              `El servidor respondió con estado ${res.status}${res.statusText ? ` (${res.statusText})` : ""}.`
+            ),
           });
-          const data = await res.json();
-          if (step === 0 && res.ok && data.metrics) {
-            setAnalisisState(prev => {
-              const newState = { ...prev };
-              newState.podometria.result = [{
-                pie: 'Único',
-                tipo: data.metrics.classification,
-                porcentajeX: data.metrics.plantar_index?.toFixed(2),
-                X: data.metrics.x_width_cm?.toFixed(1) + ' cm',
-                Y: data.metrics.y_width_cm?.toFixed(1) + ' cm',
-                mf: '',
-              }];
-              if (data.images && data.images.annotated) newState.podometria.debugImg = data.images.annotated;
-              return newState;
-            });
-            if (files[0] && typeof files[0] !== 'string') {
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                setAnalisisState(s => ({
-                  ...s,
-                  podometria: {
-                    ...s.podometria,
-                    huella: ev.target.result
-                  }
-                }));
-              };
-              reader.readAsDataURL(files[0]);
-            } else if (typeof files[0] === 'string') {
-              setAnalisisState(s => ({
+          return;
+        }
+
+        let uploadOk = false;
+
+        if (step === 0 && data?.metrics) {
+          uploadOk = true;
+          setAnalisisState((prev) => {
+            const newState = { ...prev };
+            newState.podometria.result = [{
+              pie: "Único",
+              tipo: data.metrics.classification,
+              porcentajeX: data.metrics.plantar_index?.toFixed(2),
+              X: data.metrics.x_width_cm?.toFixed(1) + " cm",
+              Y: data.metrics.y_width_cm?.toFixed(1) + " cm",
+              mf: "",
+            }];
+            if (data.images && data.images.annotated) newState.podometria.debugImg = data.images.annotated;
+            return newState;
+          });
+
+          if (files[0] && typeof files[0] !== "string") {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              setAnalisisState((s) => ({
                 ...s,
                 podometria: {
                   ...s.podometria,
-                  huella: files[0]
-                }
+                  huella: ev.target.result,
+                },
               }));
-            }
+            };
+            reader.readAsDataURL(files[0]);
+          } else if (typeof files[0] === "string") {
+            setAnalisisState((s) => ({
+              ...s,
+              podometria: {
+                ...s.podometria,
+                huella: files[0],
+              },
+            }));
           }
-          if (step === 1 && res.ok && data.metrics) {
-            setAnalisisState(prev => {
-              const newState = { ...prev };
-              newState.frontal.result = {
-                tipo: data.metrics.classification,
-                angulo: data.metrics.knee_angle_deg?.toFixed(1) + '°',
-                plano: data.metrics.plane,
-              };
-              if (data.images && data.images.annotated) newState.frontal.debugImg = data.images.annotated;
-              return newState;
-            });
-          }
-          if (step === 2 && res.ok && data.metrics) {
-            setAnalisisState(prev => {
-              const newState = { ...prev };
-              newState.sagital.result = {
-                tipo: data.metrics.classification,
-                angulo: data.metrics.knee_angle_deg?.toFixed(1) + '°',
-                plano: data.metrics.plane,
-              };
-              if (data.images && data.images.annotated) newState.sagital.debugImg = data.images.annotated;
-              return newState;
-            });
-          }
-          if (step === 3 && res.ok && (data.chain || data.explanation || data.rasgos)) {
-            setAnalisisState(prev => {
-              const newState = { ...prev };
-              newState.miofascial.result = [{
-                tipo: data.chain,
-                explicacion: data.explanation,
-                rasgos: data.rasgos,
-              }];
-              if (data.imagen_original) newState.miofascial.imagen_original = data.imagen_original;
-              if (data.images && data.images.annotated) newState.miofascial.debugImg = data.images.annotated;
-              return newState;
-            });
-          }
-        } catch (e) {
+        } else if (step === 1 && data?.metrics) {
+          uploadOk = true;
+          setAnalisisState((prev) => {
+            const newState = { ...prev };
+            newState.frontal.result = {
+              tipo: data.metrics.classification,
+              angulo: data.metrics.knee_angle_deg?.toFixed(1) + "°",
+              plano: data.metrics.plane,
+            };
+            if (data.images && data.images.annotated) newState.frontal.debugImg = data.images.annotated;
+            return newState;
+          });
+        } else if (step === 2 && data?.metrics) {
+          uploadOk = true;
+          setAnalisisState((prev) => {
+            const newState = { ...prev };
+            newState.sagital.result = {
+              tipo: data.metrics.classification,
+              angulo: data.metrics.knee_angle_deg?.toFixed(1) + "°",
+              plano: data.metrics.plane,
+            };
+            if (data.images && data.images.annotated) newState.sagital.debugImg = data.images.annotated;
+            return newState;
+          });
+        } else if (step === 3 && (data?.chain || data?.explanation || data?.rasgos)) {
+          uploadOk = true;
+          setAnalisisState((prev) => {
+            const newState = { ...prev };
+            newState.miofascial.result = [{
+              tipo: data.chain,
+              explicacion: data.explanation,
+              rasgos: data.rasgos,
+            }];
+            if (data.imagen_original) newState.miofascial.imagen_original = data.imagen_original;
+            if (data.images && data.images.annotated) newState.miofascial.debugImg = data.images.annotated;
+            return newState;
+          });
         }
+
+        if (uploadOk) {
+          Swal.fire({
+            icon: "success",
+            title: "Imagen subida",
+            text: `La imagen de ${uploadLabel} se procesó correctamente.`,
+            timer: 1800,
+            showConfirmButton: false,
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "No se pudo procesar la imagen",
+            text: `El servidor respondió correctamente, pero no devolvió datos válidos para ${uploadLabel}.`,
+          });
+        }
+      } catch (e) {
+        Swal.fire({
+          icon: "error",
+          title: "Error al subir la imagen",
+          text: e?.message || `No se pudo conectar con el servidor para ${uploadLabel}.`,
+        });
+      } finally {
         setPieLoading(false);
       }
-    } else setForm({ ...form, [name]: value });
+
+      return;
+    }
+
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = (e) => {
@@ -143,7 +224,6 @@ export default function AnalysisForm({ initial, onSave, onCancel }) {
     if (step === 0) {
       setStep(1);
       setForm(f => ({ ...f, tipoTest: "Ángulo de tibiofemoral" }));
-      setPieResult(null);
       setPieDebugImg(null);
       setPieBinImg(null);
       return;

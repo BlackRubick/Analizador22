@@ -28,84 +28,86 @@ export default function PatientForm({ initial, onSave, onCancel }) {
 
   return (
     <>
-      <form
-        className="card max-w-lg mx-auto animate-fade-in"
-        onSubmit={handleSubmit}
-      >
-        <h2 className="text-2xl font-extrabold mb-6 text-main tracking-tight flex items-center gap-2">
-          <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="var(--color-primary)"/><path d="M12 6v12M6 12h12" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>
-          {initial ? "Editar Paciente" : "Registrar Paciente"}
-        </h2>
-        <div className="mb-4">
-          <label className="block mb-1 text-main font-semibold">Nombre</label>
-          <input className="w-full border-2 border-bg-secondary focus:border-primary p-3 rounded-btn transition-all outline-none bg-bg-secondary" name="nombre" value={form.nombre} onChange={handleChange} required autoFocus />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-main font-semibold">Edad</label>
-          <input className="w-full border-2 border-bg-secondary focus:border-primary p-3 rounded-btn transition-all outline-none bg-bg-secondary" name="edad" value={form.edad} onChange={handleChange} required type="number" min="0" />
-        </div>
-        <div className="mb-8">
-          <label className="block mb-1 text-main font-semibold">Sexo</label>
-          <select className="w-full border-2 border-bg-secondary focus:border-primary p-3 rounded-btn transition-all outline-none bg-bg-secondary" name="sexo" value={form.sexo} onChange={handleChange} required>
-            <option value="">Selecciona</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
+      <div className="w-full min-h-[calc(100vh-180px)] flex items-center justify-center px-4 py-8">
+        <form
+          className="card max-w-lg w-full mx-auto animate-fade-in"
+          onSubmit={handleSubmit}
+        >
+          <h2 className="text-2xl font-extrabold mb-6 text-main tracking-tight flex items-center gap-2">
+            <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="var(--color-primary)"/><path d="M12 6v12M6 12h12" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>
+            {initial ? "Editar Paciente" : "Registrar Paciente"}
+          </h2>
+          <div className="mb-4">
+            <label className="block mb-1 text-main font-semibold">Nombre</label>
+            <input className="w-full border-2 border-bg-secondary focus:border-primary p-3 rounded-btn transition-all outline-none bg-bg-secondary" name="nombre" value={form.nombre} onChange={handleChange} required autoFocus />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1 text-main font-semibold">Edad</label>
+            <input className="w-full border-2 border-bg-secondary focus:border-primary p-3 rounded-btn transition-all outline-none bg-bg-secondary" name="edad" value={form.edad} onChange={handleChange} required type="number" min="0" />
+          </div>
+          <div className="mb-8">
+            <label className="block mb-1 text-main font-semibold">Sexo</label>
+            <select className="w-full border-2 border-bg-secondary focus:border-primary p-3 rounded-btn transition-all outline-none bg-bg-secondary" name="sexo" value={form.sexo} onChange={handleChange} required>
+              <option value="">Selecciona</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
 
-        <div className="border-t border-gray-200 pt-6 mt-6">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              className="accent-primary w-5 h-5"
-              checked={consent}
-              onChange={e => setConsent(e.target.checked)}
-              required
-            />
-            <span className="text-main text-sm">
-              He leído y acepto los
-              <button
-                type="button"
-                className="underline text-primary font-semibold ml-1 hover:text-main focus:outline-none"
-                onClick={() => setModalOpen(true)}
-              >
-                términos y condiciones
-              </button>
-            </span>
-          </label>
-        </div>
+          <div className="border-t border-gray-200 pt-6 mt-6">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="accent-primary w-5 h-5"
+                checked={consent}
+                onChange={e => setConsent(e.target.checked)}
+                required
+              />
+              <span className="text-main text-sm">
+                He leído y acepto los
+                <button
+                  type="button"
+                  className="underline text-primary font-semibold ml-1 hover:text-main focus:outline-none"
+                  onClick={() => setModalOpen(true)}
+                >
+                  términos y condiciones
+                </button>
+              </span>
+            </label>
+          </div>
 
-        <div className="flex justify-end gap-2 mt-8">
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={() => {
-              Swal.fire({
-                icon: 'warning',
-                title: '¿Cancelar?',
-                text: '¿Seguro que quieres cancelar? Los cambios no se guardarán.',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, cancelar',
-                cancelButtonText: 'No',
-                reverseButtons: true
-              }).then(result => {
-                if (result.isConfirmed) onCancel();
-              });
-            }}
-          >Cancelar</button>
-          <button
-            type="submit"
-            className="btn-primary !bg-[var(--color-primary)] !text-white"
-            disabled={
-              !consent ||
-              !form.nombre.trim() ||
-              !form.edad ||
-              !form.sexo
-            }
-          >{initial ? "Guardar" : "Registrar"}</button>
-        </div>
-      </form>
+          <div className="flex justify-end gap-2 mt-8">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => {
+                Swal.fire({
+                  icon: 'warning',
+                  title: '¿Cancelar?',
+                  text: '¿Seguro que quieres cancelar? Los cambios no se guardarán.',
+                  showCancelButton: true,
+                  confirmButtonText: 'Sí, cancelar',
+                  cancelButtonText: 'No',
+                  reverseButtons: true
+                }).then(result => {
+                  if (result.isConfirmed) onCancel();
+                });
+              }}
+            >Cancelar</button>
+            <button
+              type="submit"
+              className="btn-primary !bg-[var(--color-primary)] !text-white"
+              disabled={
+                !consent ||
+                !form.nombre.trim() ||
+                !form.edad ||
+                !form.sexo
+              }
+            >{initial ? "Guardar" : "Registrar"}</button>
+          </div>
+        </form>
+      </div>
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
